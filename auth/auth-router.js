@@ -2,6 +2,8 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt"); 
 const Users = require("../users/users-model.js"); 
 
+
+
 router.post("/register", (req, res) => {
     let user = req.body; // username, password
 
@@ -27,13 +29,17 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
     let { username, password } = req.body; 
 
+    let name = 'user id'; 
+
     // search for the user using the username
     Users.findBy({ username })
         .then(([user]) => {
             // if we find the user, then also check that passwords match
             if (user && bcrypt.compareSync(password, user.password)){
                 req.session.loggedIn = true; 
-                res.status(200).json({ message: 'Welcome!' }); 
+                console.log('session: ', req.session); 
+                // Session will persist until server is restarted and the memory gets wiped out
+                res.status(200).cookie(name, user.id).json({ message: 'Welcome!' }); 
             } else {
                 res.status(401).json({ message: "You shall not pass!" }); 
             }
